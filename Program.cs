@@ -6,7 +6,8 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var counter = new Day1.ElfService();
+            counter.Process();
         }
     }
 }
