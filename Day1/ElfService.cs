@@ -11,7 +11,7 @@ namespace AdventOfCode2022.Day1
         public void Process()
         {
             var fileService = new Common.FileService();
-            var input = fileService.LoadEmbededResourceAsString("Input.txt");
+            var input = fileService.LoadEmbededResourceAsString("Day1.Input.txt");
 
             var elvesList = GetListOfElves(input);
 
