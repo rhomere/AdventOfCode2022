@@ -14,6 +14,9 @@ namespace AdventOfCode2022.Day2
         private const string _p1 = "p1";
         private const string _p2 = "p2";
         private const string _draw = "draw";
+        private const string _win = "win";
+        private const string _lose = "lose";
+        private bool _usePartTwoLogic = false;
 
         public void Process()
         {
@@ -28,11 +31,16 @@ namespace AdventOfCode2022.Day2
                 playerOneInputs.Add(t[0].ToLower());
                 playerTwoInputs.Add(t[1].ToLower());
             }
-            // Lost = 0, Draw = 3, Win = 6
+            
             var score = PlayRockPaperScissors(playerOneInputs, playerTwoInputs);
             Console.WriteLine("Part One: ");
             Console.WriteLine($"Score: {score}");
 
+            // X = Lose, Y = Draw, Z = Win
+            _usePartTwoLogic = true;
+            score = PlayRockPaperScissors(playerOneInputs, playerTwoInputs);
+            Console.WriteLine("Part Two: ");
+            Console.WriteLine($"Score: {score}");
         }
 
         private object PlayRockPaperScissors(List<string> playerOneInputs, List<string> playerTwoInputs)
@@ -49,7 +57,11 @@ namespace AdventOfCode2022.Day2
         private int EvaluateRound(string p1, string p2)
         {
             var point = 0;
-            var result = EvaluateShapes(p1, p2);
+            var result = EvaluateShapes(p1, p2, out string newp2);
+
+            if (_usePartTwoLogic)
+                p2 = newp2;
+
             if (result.Equals(_p1))
             {
                 // Loss, track shape points only
@@ -73,10 +85,38 @@ namespace AdventOfCode2022.Day2
             throw new Exception("Shouldn't happen");
         }
 
-        private string EvaluateShapes(string p1, string p2)
+        private string EvaluateShapes(string p1, string p2, out string newp2)
         {
             p1 = ConverLetterToShape(p1);
-            p2 = ConverLetterToShape(p2);
+            if (!_usePartTwoLogic)
+                p2 = ConverLetterToShape(p2);
+            else
+                p2 = ConvertLetterToObjective(p2);
+
+            if (p2.Equals(_win))
+            {
+                if (p1.Equals(_rock))
+                    p2 = _paper;
+                else if (p1.Equals(_scissors))
+                    p2 = _rock;
+                else if (p1.Equals(_paper))
+                    p2 = _scissors;
+            }
+            else if (p2.Equals(_draw))
+            {
+                p2 = p1;
+            }
+            else if (p2.Equals(_lose))
+            {
+                if (p1.Equals(_rock))
+                    p2 = _scissors;
+                else if (p1.Equals(_scissors))
+                    p2 = _paper;
+                else if (p1.Equals(_paper))
+                    p2 = _rock;
+            }
+
+            newp2 = ConvertShapeToLetter(p2);
 
             // Rock
             if (p1.Equals(_rock) && p2.Equals(_scissors))
@@ -103,6 +143,36 @@ namespace AdventOfCode2022.Day2
                 return _p2;
 
             throw new Exception("Shape not found");
+        }
+
+        private string ConvertShapeToLetter(string shape)
+        {
+            switch (shape.ToLower())
+            {
+                case _rock:
+                    return "x";
+                case _paper:
+                    return "y";
+                case _scissors:
+                    return "z";
+                default:
+                    throw new Exception("Unknown shape");
+            }
+        }
+
+        private string ConvertLetterToObjective(string letter)
+        {
+            switch (letter.ToLower())
+            {
+                case "x":
+                    return _lose;
+                case "y":
+                    return _draw;
+                case "z":
+                    return _win;
+                default:
+                    throw new Exception("Unknown Letter");
+            }
         }
 
         private string ConverLetterToShape(string letter)
